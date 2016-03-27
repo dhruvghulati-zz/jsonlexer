@@ -1,0 +1,32 @@
+package Example;
+
+import java_cup.runtime.*;
+
+parser code {:
+	public static void main(String args[]) throws Exception {
+		SymbolFactory sf = new DefaultSymbolFactory();
+		if (args.length==0) new Parser(new Scanner(System.in,sf),sf).parse();
+		else new Parser(new Scanner(new java.io.FileInputStream(args[0]),sf),sf).parse();
+	}
+:}
+
+terminal COMMA, LSQBRACKET, RSQBRACKET, RCURLYBRACE, LCURLYBRACE, COLON, QUOTEMARK;
+terminal NUMBER, STRING;
+terminal BOOLEAN, NULL;
+
+//No precedence or associativity rules needed;
+
+//All the definitions of non terminals in the official JSOn document
+non terminal object, members, pair,array, value, elements;
+
+//An object is an unordered set of name/value pairs. An object begins with { (left brace) and ends with } (right brace).
+object ::= LCURLYBRACE RCURLYBRACE | LCURLYBRACE members RCURLYBRACE {: System.out.println("Object found"); :};
+members ::= pair | pair COMMA members {: System.out.println("Members found"); :};
+// //Each name is followed by : (colon) and the name/value pairs are separated by , (comma).
+pair ::= STRING COLON value {: System.out.println("Pair found"); :};
+//An array is an ordered collection of values. An array begins with [ (left bracket) and ends with ] (right bracket).
+array ::= LSQBRACKET elements RSQBRACKET | LSQBRACKET RSQBRACKET {: System.out.println("Array found"); :};
+// //Values are separated by , (comma).
+elements ::= value | value COMMA elements {: System.out.println("Elements found"); :};
+//A value can be a string in double quotes, or a number, or true or false or null, or an object or an array. These structures can be nested.
+value ::= object| array| NULL | BOOLEAN | NUMBER | STRING {: System.out.println("Value found"); :};
